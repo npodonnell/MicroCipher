@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 project(microcipher)
 
-add_executable(microcipher main.cpp)
+add_executable(microcipher main.cpp microcipher.cpp)
 
 install(TARGETS microcipher RUNTIME DESTINATION bin)
 find_package(Boost 1.4 COMPONENTS program_options REQUIRED)

@@ -28,12 +28,25 @@ bool check_get_is_encrypt(const variables_map& map) {
 
 
 /**
+ * Checks if the map contains a microcipher key in a valid hex format. If so it's parsed
+ * and converted to an MCKEY.
+ */ 
+MCKEY check_get_mckey(const variables_map& map) {
+    return MCKEY{
+        //FIXME
+        1,2,3,4
+    };
+}
+
+
+/**
  * Gets input file or nullopt
  */
 optional<string> check_get_in_filename(const variables_map& map) {
     if (!map.count("infile")) {
         return nullopt;
     }
+    
     return optional<string>(map["infile"].as<string>());
 }
 
@@ -75,12 +88,30 @@ pair<istream&, bool> get_input_stream(const optional<string>& in_filename) {
     }
     
     ifstream* infile = new ifstream(in_filename.value());
-    
     if (!infile->good()) {
         throw error("Input file " + in_filename.value() + " is not good");
     }
     
     return pair<istream&, bool>(*infile, true);
+}
+
+
+/**
+ * Returns an output stream which may be a file stream if the filename is present in the optional,
+ * or else std::cout. If there's a problem opening the file, an error will be thrown.
+ * A std::pair is used to also return a boolean which indicates if it's an ofstream or not.
+ */
+pair<ostream&, bool> get_output_stream(const optional<string>& out_filename) {
+    if (out_filename == nullopt) {
+        return pair<ostream&, bool>(cout, false);
+    }
+    
+    ofstream* outfile = new ofstream(out_filename.value());
+    if (!outfile->good()) {
+        throw error("Output file " + out_filename.value() + " is not good");
+    }
+    
+    return pair<ostream&, bool>(*outfile, true);
 }
 
 
@@ -101,6 +132,22 @@ void close_input_stream(const pair<istream&, bool>& input_pair) {
 
 
 /**
+ * Closes any output stream as returned from get_output_stream. There are 2 cases:
+ * cout and file. Nothing needs to be done in the case of cout. If it's a file,
+ * the file stream shall be closed and the associated ofstream destructed.
+ */
+void close_output_stream(const pair<ostream&, bool>& output_pair) {
+    ostream& output_stream = output_pair.first;
+    bool is_file = output_pair.second;
+    
+    if (is_file) {
+        ((ofstream*)&output_stream)->close();
+        delete &output_stream;
+    }
+}
+
+
+/**
  * Main function
  */
 int main(int argc, char **argv) {
@@ -112,6 +159,7 @@ int main(int argc, char **argv) {
             ("help,h", "Help Screen")
             ("encrypt,e", bool_switch()->default_value(false), "Encrypt")
             ("decrypt,d", bool_switch()->default_value(false), "Decrypt")
+            ("key,k", value<string>()->required(), "Key")
             ("infile,i", value<string>(), "Input File")
             ("outfile,o", value<string>(), "Output File");
         
@@ -122,28 +170,31 @@ int main(int argc, char **argv) {
         
         // check if user needs help
         if (map.count("help")) {
-            COUT << desc << ENDL;
+            cout << desc << endl;
             return 0;
         }
         
         notify(map);
         
         auto is_encrypt = check_get_is_encrypt(map);
+        MCKEY mckey = check_get_mckey(map);
         optional<string> in_filename = check_get_in_filename(map);
         optional<string> out_filename = check_get_out_filename(map, is_encrypt, in_filename);
         
         pair<istream&, bool> input_pair = get_input_stream(in_filename);
-        istream& is = input_pair.first;
-        bool is_file = input_pair.second;
+        pair<ostream&, bool> output_pair = get_output_stream(out_filename);
         
         // TODO: Encryption/Decryption
+        //microcipher_process()
+        
         
         close_input_stream(input_pair);
+        close_output_stream(output_pair);
         
         return 0;
     } catch(const error& ex) {
-        CERR << ex.what() << ENDL;
-        COUT << desc << ENDL;
+        cerr << ex.what() << endl;
+        cout << desc << endl;
         return 1;
     }
 }
