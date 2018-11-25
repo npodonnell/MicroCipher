@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <typeinfo>
+#include <utility>
 #include <boost/program_options.hpp>
 #include <experimental/optional>
 #include "microcipher.h"
@@ -9,11 +11,10 @@ using namespace std;
 using namespace std::experimental;
 using namespace boost::program_options;
 
-bool file_exists(const string& filename) {
-    ifstream infile(filename.c_str());
-    return infile.good();
-}
-
+/**
+ * Returns true if the encryption operation is specified only or false if the decryption
+ * operation is specified only.
+ */
 bool check_get_is_encrypt(const variables_map& map) {
     auto encrypt = map["encrypt"].as<bool>();
     auto decrypt = map["decrypt"].as<bool>();
@@ -25,25 +26,23 @@ bool check_get_is_encrypt(const variables_map& map) {
     return encrypt;
 }
 
+/**
+ * Gets input file or nullopt
+ */
 optional<string> check_get_in_filename(const variables_map& map) {
     if (!map.count("infile")) {
         return nullopt;
     }
     
     auto in_filename = map["infile"].as<string>();
-    
-    if (!file_exists(in_filename)) {
-        throw error("Cannot read the file:" + in_filename);
-    }
-    
     return optional<string>(in_filename);
 }
 
 /**
  * Output filename will be the one specified in the options map, otherwise it will be
  * the input filename appended with either .enc or .dec depending on whether the operation
- * is encryption or decryption. If there's no input filename, the output filename will also
- * be made null and output will instead go to stdout.
+ * is encryption or decryption. If there's no input filename or output filename, the output
+ * filename will become a nullopt and output will instead go to stdout.
  */
 optional<string> check_get_out_filename(const variables_map& map, const bool is_encrypt, 
                               const optional<string>& in_filename) {
@@ -64,17 +63,53 @@ optional<string> check_get_out_filename(const variables_map& map, const bool is_
     return optional<string>(out_filename);
 }
 
+/**
+ * Returns an input stream which may be a file stream if the filename is present in the optional,
+ * or else std::cin. If there's a problem opening the file, an error will be thrown.
+ * 
+ * A std::pair is used to return a boolean which indicates if it's an ifstream or not.
+ */
+pair<istream&, bool> get_input_stream(const optional<string>& in_filename) {
+    if (in_filename == nullopt) {
+        return pair<istream&, bool>(cin, false);
+    }
+    
+    ifstream* infile = new ifstream(in_filename.value());
+    
+    if (!infile->good()) {
+        throw error("Input file " + in_filename.value() + " is not good");
+    }
+    
+    return pair<istream&, bool>(*infile, true);
+}
+
+/**
+ * Closes any input stream as returned from get_input_stream. There are 2 cases:
+ * cin and file. Nothing needs to be done in the case of cin. If it's a file,
+ * the file stream shall be closed and the associated ifstream destructed.
+ */
+void close_input_stream(const pair<istream&, bool>& input_pair) {
+    istream& input_stream = input_pair.first;
+    bool is_file = input_pair.second;
+    
+    if (is_file) {
+        ((ifstream*)&input_stream)->close();
+        delete &input_stream;
+    }
+}
+
 int main(int argc, char **argv) {
     // define some options
     options_description desc{"Options"};
-    desc.add_options()
-        ("help,h", "Help Screen")
-        ("encrypt,e", bool_switch()->default_value(false), "Encrypt")
-        ("decrypt,d", bool_switch()->default_value(false), "Decrypt")
-        ("infile,i", value<string>(), "Input File")
-        ("outfile,o", value<string>(), "Output File");
-    
+
     try {
+        desc.add_options()
+            ("help,h", "Help Screen")
+            ("encrypt,e", bool_switch()->default_value(false), "Encrypt")
+            ("decrypt,d", bool_switch()->default_value(false), "Decrypt")
+            ("infile,i", value<string>(), "Input File")
+            ("outfile,o", value<string>(), "Output File");
+        
         // read variables map
         variables_map map;
         store(parse_command_line(argc, argv, desc), map);
@@ -92,17 +127,13 @@ int main(int argc, char **argv) {
         optional<string> in_filename = check_get_in_filename(map);
         optional<string> out_filename = check_get_out_filename(map, is_encrypt, in_filename);
         
-        if (in_filename == nullopt) {
-            COUT << "infile is nullopt" << ENDL;
-        } else {
-            COUT << "infile is " << in_filename.value() << ENDL;
-        }
-
-        if (out_filename == nullopt) {
-            COUT << "outfile is nullopt" << ENDL;
-        } else {
-            COUT << "outfile is " << out_filename.value() << ENDL;
-        }
+        pair<istream&, bool> input_pair = get_input_stream(in_filename);
+        istream& is = input_pair.first;
+        bool is_file = input_pair.second;
+        
+        // TODO: Encryption/Decryption
+        
+        close_input_stream(input_pair);
         
         return 0;
     } catch(const error& ex) {
