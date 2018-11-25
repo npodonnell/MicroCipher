@@ -26,6 +26,7 @@ bool check_get_is_encrypt(const variables_map& map) {
     return encrypt;
 }
 
+
 /**
  * Gets input file or nullopt
  */
@@ -33,10 +34,9 @@ optional<string> check_get_in_filename(const variables_map& map) {
     if (!map.count("infile")) {
         return nullopt;
     }
-    
-    auto in_filename = map["infile"].as<string>();
-    return optional<string>(in_filename);
+    return optional<string>(map["infile"].as<string>());
 }
+
 
 /**
  * Output filename will be the one specified in the options map, otherwise it will be
@@ -63,11 +63,11 @@ optional<string> check_get_out_filename(const variables_map& map, const bool is_
     return optional<string>(out_filename);
 }
 
+
 /**
  * Returns an input stream which may be a file stream if the filename is present in the optional,
  * or else std::cin. If there's a problem opening the file, an error will be thrown.
- * 
- * A std::pair is used to return a boolean which indicates if it's an ifstream or not.
+ * A std::pair is used to also return a boolean which indicates if it's an ifstream or not.
  */
 pair<istream&, bool> get_input_stream(const optional<string>& in_filename) {
     if (in_filename == nullopt) {
@@ -82,6 +82,7 @@ pair<istream&, bool> get_input_stream(const optional<string>& in_filename) {
     
     return pair<istream&, bool>(*infile, true);
 }
+
 
 /**
  * Closes any input stream as returned from get_input_stream. There are 2 cases:
@@ -98,6 +99,10 @@ void close_input_stream(const pair<istream&, bool>& input_pair) {
     }
 }
 
+
+/**
+ * Main function
+ */
 int main(int argc, char **argv) {
     // define some options
     options_description desc{"Options"};
