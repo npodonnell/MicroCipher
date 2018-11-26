@@ -19,8 +19,8 @@ void microcipher_process(const MCKEY& mckey, istream& input_stream, ostream& out
     MCBLOCK block;
     
     do {
-        input_stream.read((char*)&block, sizeof(MCBLOCK));
+        input_stream.read(block.chars, sizeof(MCBLOCK));
         int bytes_read = input_stream.gcount();
-        output_stream.write((char*)&block, bytes_read);
+        output_stream.write(block.chars, bytes_read);
     } while(!input_stream.eof());
 }
