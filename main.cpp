@@ -32,48 +32,11 @@ bool check_get_is_encrypt(const variables_map& map) {
  * and converted to an MCKEY.
  */ 
 MCKEY check_get_mckey(const variables_map& map) {
+    auto key_str = map["key"].as<string>();
     return MCKEY{
         //FIXME
         1,2,3,4
     };
-}
-
-
-/**
- * Gets input file or nullopt
- */
-optional<string> check_get_in_filename(const variables_map& map) {
-    if (!map.count("infile")) {
-        return nullopt;
-    }
-    
-    return optional<string>(map["infile"].as<string>());
-}
-
-
-/**
- * Output filename will be the one specified in the options map, otherwise it will be
- * the input filename appended with either .enc or .dec depending on whether the operation
- * is encryption or decryption. If there's no input filename or output filename, the output
- * filename will become a nullopt and output will instead go to stdout.
- */
-optional<string> check_get_out_filename(const variables_map& map, const bool is_encrypt, 
-                              const optional<string>& in_filename) {
-    string out_filename;
-    
-    if (map.count("outfile")) {
-        out_filename = map["outfile"].as<string>();
-    } else if (in_filename != nullopt){
-        out_filename = in_filename.value() + (is_encrypt ? ".enc" : ".dec");
-    } else {
-        return nullopt;
-    }
-    
-    if (in_filename == out_filename) {
-        throw error("Input file cannot be same as output file");
-    }
-    
-    return optional<string>(out_filename);
 }
 
 
@@ -87,7 +50,7 @@ pair<istream&, bool> get_input_stream(const optional<string>& in_filename) {
         return pair<istream&, bool>(cin, false);
     }
     
-    ifstream* infile = new ifstream(in_filename.value());
+    ifstream* infile = new ifstream(in_filename.value(), ios::in|ios::binary);
     if (!infile->good()) {
         throw error("Input file " + in_filename.value() + " is not good");
     }
@@ -106,7 +69,7 @@ pair<ostream&, bool> get_output_stream(const optional<string>& out_filename) {
         return pair<ostream&, bool>(cout, false);
     }
     
-    ofstream* outfile = new ofstream(out_filename.value());
+    ofstream* outfile = new ofstream(out_filename.value(), ios::out|ios::binary);
     if (!outfile->good()) {
         throw error("Output file " + out_filename.value() + " is not good");
     }
@@ -178,15 +141,17 @@ int main(int argc, char **argv) {
         
         auto is_encrypt = check_get_is_encrypt(map);
         MCKEY mckey = check_get_mckey(map);
-        optional<string> in_filename = check_get_in_filename(map);
-        optional<string> out_filename = check_get_out_filename(map, is_encrypt, in_filename);
+        optional<string> in_filename = map.count("infile") ? optional<string>(map["infile"].as<string>()) : nullopt;
+        optional<string> out_filename = map.count("outfile") ? optional<string>(map["outfile"].as<string>()): nullopt;
+        
+        if (in_filename != nullopt && out_filename != nullopt && in_filename.value() == out_filename.value()) {
+            throw error("Input file cannot be same as output file");
+        }
         
         pair<istream&, bool> input_pair = get_input_stream(in_filename);
         pair<ostream&, bool> output_pair = get_output_stream(out_filename);
         
-        // TODO: Encryption/Decryption
-        //microcipher_process()
-        
+        microcipher_process(mckey, input_pair.first, output_pair.first);
         
         close_input_stream(input_pair);
         close_output_stream(output_pair);
