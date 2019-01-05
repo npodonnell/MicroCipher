@@ -2,9 +2,9 @@
 *.cbp
 .idea
 *.cmake
+Makefile
 CMakeCache.txt
 CMakeFiles
-/Makefile
 /bin
 /test-data/*.enc
 /test-data/*.dec
