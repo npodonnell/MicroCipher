@@ -1,9 +1,8 @@
-/build
-/*.kdev4
-/*.cbp
-/.idea
-/*.cmake
-/CMakeCache.txt
-/CMakeFiles
+*.kdev4
+*.cbp
+.idea
+*.cmake
+CMakeCache.txt
+CMakeFiles
 /Makefile
 /bin
