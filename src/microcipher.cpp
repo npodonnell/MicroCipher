@@ -21,10 +21,10 @@ void microcipher_process(const MCKEY& mckey, const MCOP& mcop, istream& input_st
     size_t bytes_read;
 
     // initialize jumps
-    uint64_t jump1 = mckey.jump1;
-    uint64_t jump2 = mckey.jump2;
-    uint64_t jump3 = mckey.jump3;
-    uint64_t jump4 = mckey.jump4;
+    uint64_t x1 = mckey.jump1;
+    uint64_t x2 = mckey.jump2;
+    uint64_t x3 = mckey.jump3;
+    uint64_t x4 = mckey.jump4;
 
     do {
         input_stream.read((char*)blocks, batch_max_bytes);
@@ -33,15 +33,12 @@ void microcipher_process(const MCKEY& mckey, const MCOP& mcop, istream& input_st
         size_t nblocks = bytes_read / sizeof(MCBLOCK);
 
         for (size_t i = 0; i < nblocks; i++) {
-            blocks[i].uint64t ^= jump1;
-            blocks[i].uint64t ^= jump2;
-            blocks[i].uint64t ^= jump3;
-            blocks[i].uint64t ^= jump4;
+            blocks[i].uint64t ^= (x1 ^ x2 ^ x3 ^ x4);
 
-            jump1 += mckey.jump1;
-            jump2 += mckey.jump2;
-            jump3 += mckey.jump3;
-            jump4 += mckey.jump4;
+            x1 += mckey.jump1;
+            x2 += mckey.jump2;
+            x3 += mckey.jump3;
+            x4 += mckey.jump4;
         }
 
         if (bytes_read == batch_max_bytes) {
@@ -50,4 +47,7 @@ void microcipher_process(const MCKEY& mckey, const MCOP& mcop, istream& input_st
     } while(!input_stream.eof());
 
     // TODO - handle padding
+    if (mcop == MCOP_ENCRYPT) {
+
+    }
 }
