@@ -15,15 +15,15 @@ using namespace boost::program_options;
  * Returns true if the encryption operation is specified only or false if the decryption
  * operation is specified only.
  */
-bool check_get_is_encrypt(const variables_map& map) {
-    auto encrypt = map["encrypt"].as<bool>();
-    auto decrypt = map["decrypt"].as<bool>();
+microcipher_op check_get_operation(const variables_map& map) {
+    auto encrypt_on = map["encrypt"].as<bool>();
+    auto decrypt_on = map["decrypt"].as<bool>();
     
-    if (!(encrypt ^ decrypt)) {
+    if (!(encrypt_on ^ decrypt_on)) {
         throw error("Must specify either encrypt or decrypt operation, bot not both");
     }
     
-    return encrypt;
+    return encrypt_on ? MCOP_ENCRYPT : MCOP_DECRYPT;
 }
 
 
@@ -118,7 +118,6 @@ int main(int argc, char **argv) {
         variables_map map;
         store(parse_command_line(argc, argv, desc), map);
         
-        
         // check if user needs help
         if (map.count("help")) {
             cout << desc << endl;
@@ -127,10 +126,12 @@ int main(int argc, char **argv) {
         
         notify(map);
         
-        auto is_encrypt = check_get_is_encrypt(map);
         MCKEY mckey = check_get_mckey(map);
+        MCOP mcop = check_get_operation(map);
+
         optional<string> in_filename = map.count("infile") ? optional<string>(map["infile"].as<string>()) : nullopt;
         optional<string> out_filename = map.count("outfile") ? optional<string>(map["outfile"].as<string>()): nullopt;
+
         
         if (in_filename != nullopt && out_filename != nullopt && in_filename.value() == out_filename.value()) {
             throw error("Input file cannot be same as output file");
@@ -140,7 +141,7 @@ int main(int argc, char **argv) {
         ostream& os = get_output_stream(out_filename);
 
         // Perform the encryption or decryption
-        microcipher_process(mckey, is, os);
+        microcipher_process(mckey, mcop, is, os);
 
         try_close_ifstream(is);
         try_close_ofstream(os);

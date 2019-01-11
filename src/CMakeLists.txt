@@ -3,6 +3,9 @@ add_executable(microcipher
         microcipher.cpp
         microcipher.h)
 
+
+set(CMAKE_CXX_FLAGS "-O5 -Wall -Wextra")
+
 set_target_properties(microcipher
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")

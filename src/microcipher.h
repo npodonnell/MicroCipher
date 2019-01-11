@@ -4,9 +4,7 @@
 
 using namespace std;
 
-const int MC_NJUMPS = 4;
-
-typedef unsigned char BYTE;
+const int BLOCKS_PER_BATCH = 1000;
 
 typedef union microcipher_block {
     uint64_t uint64t;
@@ -20,5 +18,10 @@ typedef struct microcipher_key {
     uint64_t jump4;
 } microcipher_key, MCKEY;
 
-MCKEY& microcipher_check_make_key(const string& key_str);
-void microcipher_process(const MCKEY&, istream&, ostream&);
+typedef enum microcipher_op {
+    MCOP_ENCRYPT,
+    MCOP_DECRYPT
+} microcipher_op, MCOP;
+
+MCKEY& microcipher_check_make_key(const string&);
+void microcipher_process(const MCKEY&, const MCOP&, istream&, ostream&);
