@@ -36,7 +36,7 @@ void microcipher_encrypt(const MCKEY& key, istream& is, ostream& os, const uint6
 
         if (nblocks < BLOCKS_PER_BATCH) {
             // pad remaining bytes
-            int remainder = bytes_read % sizeof(MCBLOCK);
+            long remainder = bytes_read % sizeof(MCBLOCK);
             batch[nblocks].uint64t &= PADDING_ZERO[remainder];
             batch[nblocks].uint64t |= PADDING_PADS[remainder];
             nblocks++;
@@ -51,7 +51,6 @@ void microcipher_encrypt(const MCKEY& key, istream& is, ostream& os, const uint6
 
 /**
  * Decrypt a stream of data using key `key`. Data is read from `is` and written to `os`
- * An optional 1-indexed start_block may be specified.
  *
  * Unlike encryption, decryption uses 2 batch buffers because there are cases where we can read in a full
  * batch but we don't know if there's more data to come. If there is no more data, we can assume the last block
@@ -96,7 +95,8 @@ void microcipher_decrypt(const MCKEY& key, istream& is, ostream& os, const uint6
         if (is_last) {
             // un-pad last block of this last batch
             long ilastblock = pblocks - 1;
-            bytes_out = (ilastblock * sizeof(MCBLOCK)) + (long) batch[parity][ilastblock].chars[7];
+            long remainder = (long) batch[parity][ilastblock].chars[7];
+            bytes_out = (ilastblock * sizeof(MCBLOCK)) + remainder;
             is_last = true;
         } else {
             // more batches to come
