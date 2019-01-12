@@ -35,7 +35,10 @@ MCKEY check_get_mckey(const variables_map& map) {
     auto key_str = map["key"].as<string>();
     return MCKEY{
         //FIXME
-        1,2,3,4
+        0x13dae87c0bc67012,
+        0xba08cbb7108fac8e,
+        0x901aa87bca109ab0,
+        0x55980ccb8109aebb
     };
 }
 
@@ -140,8 +143,14 @@ int main(int argc, char **argv) {
         istream& is = get_input_stream(in_filename);
         ostream& os = get_output_stream(out_filename);
 
-        // Perform the encryption or decryption
-        microcipher_process(mckey, mcop, is, os);
+        switch(mcop) {
+            case MCOP_ENCRYPT:
+                microcipher_encrypt(mckey, is, os, 1);
+                break;
+            case MCOP_DECRYPT:
+                microcipher_decrypt(mckey, is, os, 1);
+                break;
+        }
 
         try_close_ifstream(is);
         try_close_ofstream(os);
