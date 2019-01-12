@@ -56,9 +56,8 @@ void microcipher_encrypt(const MCKEY& key, istream& is, ostream& os, const uint6
  * batch but we don't know if there's more data to come. If there is no more data, we can assume the last block
  * as the padded block and un-pad it then exit, however if there's more data we just want to continue.
  *
- * Having 2 buffers solves this. We read in buffer n, then decrypt buffer n-1, and if buffer n is full we can tell
- * if it's the last of the data by checking for a block in buffer n. If we find at least 1 block in buffer n, we
- * can just decrypt all data in butter n-1 and continue. If not, we un-pad the last block in buffer n-1 and exit.
+ * Using 2 alternating buffers solves this. We read into buffer n then decrypt buffer n-1. If buffer n is empty
+ * we know the padded block is in buffer n-1, so we un-pad it and we're finished, otherwise we continue looping.
  *
  * A `parity` variable is used to keep track of whether we're on an even or an odd batch.
  *
@@ -95,7 +94,7 @@ void microcipher_decrypt(const MCKEY& key, istream& is, ostream& os, const uint6
         if (is_last) {
             // un-pad last block of this last batch
             long ilastblock = pblocks - 1;
-            long remainder = (long) batch[parity][ilastblock].chars[7];
+            long remainder = ((long) batch[parity][ilastblock].chars[7]) % 8L;
             bytes_out = (ilastblock * sizeof(MCBLOCK)) + remainder;
             is_last = true;
         } else {
