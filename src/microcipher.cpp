@@ -1,9 +1,28 @@
 #include <iostream>
 #include <cassert>
 #include <sstream>
+#include <openssl/sha.h>
 #include "microcipher.h"
 
 using namespace std;
+
+/**
+ * Helper function - generates a hash from an external form key. This hash will be used to make the
+ * internal form key. Hashing function is double-SHA512
+ *
+ * @param mcexkey - External form key
+ * @return 64-byte hash
+ */
+vector<BYTE> generate_hash(const MCEXKEY& mcexkey) {
+    vector<BYTE> hash1(64);
+    vector<BYTE> hash2(64);
+
+    SHA512(mcexkey.data(), mcexkey.size(), hash1.data());
+    SHA512(hash1.data(), mcexkey.size(), hash2.data());
+
+    return hash2;
+}
+
 
 /**
  * Converts a string to an external form key. The conversion is essentially a type conversion and all
@@ -51,21 +70,23 @@ MCEXKEY microcipher_string_to_mcexkey(const string& str, const bool is_hex) {
  * array of zero or more bytes. To convert this to an internal form key the following steps are
  * performed:
  *
- * 1. The bytes are hashed into a 256-bit hash using a secure hashing algorithm
+ * 1. The bytes are hashed into a 512-bit hash using a secure hashing algorithm
  *
- * 2. The 256 bits are split into 4 64-bit unsigned integers which are known as "jumps"
+ * 2. The 512 bits are split into 8 64-bit unsigned integers which are known as "jumps"
  *
  * @param mcexkey - External form key
  * @return Internal form key
  */
 MCKEY microcipher_mcexkey_to_mckey(const MCEXKEY& mcexkey) {
-    return MCKEY{
-        //FIXME
-        0x13dae87c0bc67012,
-        0xba08cbb7108fac8e,
-        0x901aa87bca109ab0,
-        0x55980ccb8109aebb
-    };
+    vector<BYTE> hash = generate_hash(mcexkey);
+    BYTE* data = hash.data();
+
+    uint64_t jump1 = *((uint64_t*)(data + 0));
+    uint64_t jump2 = *((uint64_t*)(data + 8));
+    uint64_t jump3 = *((uint64_t*)(data + 16));
+    uint64_t jump4 = *((uint64_t*)(data + 24));
+
+    return MCKEY {jump1, jump2, jump3, jump4};
 }
 
 /**
