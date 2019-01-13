@@ -15,9 +15,7 @@ A MicroCipher key consists of 8 randomly chosen 64-bit unsigned integers called 
 ### Encryption
 
 MicroCipher encrypts by XORing an N-byte plaintext with an N-byte pseudo-random keystream. 
-Plaintexts are measured in bytes, not bits.
-
-Encryption may begin from any arbitrary 1-indexed block number, thus may be parallelized. 
+Encryption may begin from any arbitrary 1-indexed block number so may be parallelized. 
 
 The encryption function takes 3 inputs: The plaintext, the key and the
 starting block.
@@ -53,7 +51,7 @@ Next the jumps are adjusted by adding each of `jump[1..8]` to  `x[1..8]`, allowi
 Decryption is the same as encryption with the exception that the padding operation is reversed. 
 
 To identify the last
-block an out-of-band signalling mechanism *is needed* since some valid padded blocks are also valid un-padded blocks
+block an out-of-band signalling mechanism *is needed* since every valid padded block is also a valid un-padded block
 therefore we can not identify the last block by examining its structure.
 
 Typically a read-ahead mechanism will attempt to read block n, and if block n has data, it will decrypt block n-1 as a
