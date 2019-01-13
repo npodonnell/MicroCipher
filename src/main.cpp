@@ -31,7 +31,7 @@ microcipher_op check_get_operation(const variables_map& map) {
  */ 
 MCKEY check_get_mckey(const variables_map& map) {
     auto str = map["key"].as<string>();
-    bool is_hex = map["hexkey"].as<bool>();
+    auto is_hex = map["hexkey"].as<bool>();
 
     return microcipher_mcexkey_to_mckey(microcipher_string_to_mcexkey(str, is_hex));
 }
