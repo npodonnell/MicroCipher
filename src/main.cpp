@@ -26,22 +26,15 @@ microcipher_op check_get_operation(const variables_map& map) {
     return encrypt_on ? MCOP_ENCRYPT : MCOP_DECRYPT;
 }
 
-
 /**
- * Checks if the map contains a microcipher key in a valid hex format. If so it's parsed
- * and converted to an MCKEY.
+ * Checks if the map contains a valid microcipher key. A key
  */ 
 MCKEY check_get_mckey(const variables_map& map) {
-    auto key_str = map["key"].as<string>();
-    return MCKEY{
-        //FIXME
-        0x13dae87c0bc67012,
-        0xba08cbb7108fac8e,
-        0x901aa87bca109ab0,
-        0x55980ccb8109aebb
-    };
-}
+    auto str = map["key"].as<string>();
+    bool is_hex = map["hexkey"].as<bool>();
 
+    return microcipher_mcexkey_to_mckey(microcipher_string_to_mcexkey(str, is_hex));
+}
 
 /**
  * Returns an input stream which may be a file stream if the filename is present in the optional,
@@ -60,7 +53,6 @@ istream& get_input_stream(const optional<string>& in_filename) {
     return *infile;
 }
 
-
 /**
  * Returns an output stream which may be a file stream if the filename is present in the optional,
  * or else std::cout. If there's a problem opening the file, an error will be thrown.
@@ -78,7 +70,6 @@ ostream& get_output_stream(const optional<string>& out_filename) {
     return *outfile;
 }
 
-
 /**
  * Close and delete `stream` if it's an ifstream, otherwise do nothing
  */
@@ -89,7 +80,6 @@ void try_close_ifstream(istream& stream) {
     } catch(std::bad_cast&) {}
 }
 
-
 /**
  * Close and delete `stream` if it's an ofstream, otherwise do nothing
  */
@@ -99,7 +89,6 @@ void try_close_ofstream(ostream& stream) {
         delete& stream;
     } catch(std::bad_cast&) {}
 }
-
 
 /**
  * Main function
@@ -113,6 +102,7 @@ int main(int argc, char **argv) {
             ("help,h", "Help Screen")
             ("encrypt,e", bool_switch()->default_value(false), "Encrypt")
             ("decrypt,d", bool_switch()->default_value(false), "Decrypt")
+            ("hexkey,x", bool_switch()->default_value(false), "Interpret key as hex")
             ("key,k", value<string>()->required(), "Key")
             ("infile,i", value<string>(), "Input File")
             ("outfile,o", value<string>(), "Output File");
@@ -135,7 +125,6 @@ int main(int argc, char **argv) {
         optional<string> in_filename = map.count("infile") ? optional<string>(map["infile"].as<string>()) : nullopt;
         optional<string> out_filename = map.count("outfile") ? optional<string>(map["outfile"].as<string>()): nullopt;
 
-        
         if (in_filename != nullopt && out_filename != nullopt && in_filename.value() == out_filename.value()) {
             throw error("Input file cannot be same as output file");
         }
@@ -156,7 +145,7 @@ int main(int argc, char **argv) {
         try_close_ofstream(os);
 
         return 0;
-    } catch(const error& ex) {
+    } catch(const exception& ex) {
         cerr << ex.what() << endl;
         cout << desc << endl;
         return 1;

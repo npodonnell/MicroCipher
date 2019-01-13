@@ -1,17 +1,26 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
-const int BLOCKS_PER_BATCH = 65536;
+const int BLOCKS_PER_BATCH = 131072;
+
+typedef unsigned char BYTE;
+
+typedef enum microcipher_op {
+    MCOP_ENCRYPT,
+    MCOP_DECRYPT
+} microcipher_op, MCOP;
 
 typedef union microcipher_block {
     uint64_t uint64t;
     char chars[8];
+    BYTE bytes[8];
 } microcipher_block, MCBLOCK;
 
-const int BYTES_PER_BATCH = BLOCKS_PER_BATCH * sizeof(MCBLOCK);
+typedef vector<BYTE> microcipher_ex_key, MCEXKEY;
 
 typedef struct microcipher_key {
     uint64_t jump1;
@@ -20,10 +29,7 @@ typedef struct microcipher_key {
     uint64_t jump4;
 } microcipher_key, MCKEY;
 
-typedef enum microcipher_op {
-    MCOP_ENCRYPT,
-    MCOP_DECRYPT
-} microcipher_op, MCOP;
+const int BYTES_PER_BATCH = BLOCKS_PER_BATCH * sizeof(MCBLOCK);
 
 /**
  * Bitmasks for performing efficient padding
@@ -55,24 +61,25 @@ const uint64_t PADDING_PADS [] = {
 /**
  * Macros common to both encryption and decryption
  */
-#define INIT_JUMPS \
-uint64_t x1 = key.jump1 * startblock; \
-uint64_t x2 = key.jump2 * startblock; \
-uint64_t x3 = key.jump3 * startblock; \
-uint64_t x4 = key.jump4 * startblock;
+#define INITIALIZE_JUMPS \
+uint64_t x1 = mckey.jump1 * startblock; \
+uint64_t x2 = mckey.jump2 * startblock; \
+uint64_t x3 = mckey.jump3 * startblock; \
+uint64_t x4 = mckey.jump4 * startblock;
 
 #define PROCESS_BATCH(batch, nblocks) \
 for (long i = 0; i < nblocks; i++) { \
     batch[i].uint64t ^= (x1 ^ x2 ^ x3 ^ x4); \
-    x1 += key.jump1; \
-    x2 += key.jump2; \
-    x3 += key.jump3; \
-    x4 += key.jump4; \
+    x1 += mckey.jump1; \
+    x2 += mckey.jump2; \
+    x3 += mckey.jump3; \
+    x4 += mckey.jump4; \
 } \
 
 /**
  * Function declarations
  */
-MCKEY& microcipher_check_make_key(const string&);
+MCEXKEY microcipher_string_to_mcexkey(const string&, const bool);
+MCKEY microcipher_mcexkey_to_mckey(const MCEXKEY&);
 void microcipher_encrypt(const MCKEY&, istream&, ostream&, const uint64_t);
 void microcipher_decrypt(const MCKEY&, istream&, ostream&, const uint64_t);
