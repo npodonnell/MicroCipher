@@ -27,6 +27,10 @@ typedef struct microcipher_key {
     uint64_t jump2;
     uint64_t jump3;
     uint64_t jump4;
+    uint64_t jump5;
+    uint64_t jump6;
+    uint64_t jump7;
+    uint64_t jump8;
 } microcipher_key, MCKEY;
 
 const int BYTES_PER_BATCH = BLOCKS_PER_BATCH * sizeof(MCBLOCK);
@@ -65,15 +69,23 @@ const uint64_t PADDING_PADS [] = {
 uint64_t x1 = mckey.jump1 * startblock; \
 uint64_t x2 = mckey.jump2 * startblock; \
 uint64_t x3 = mckey.jump3 * startblock; \
-uint64_t x4 = mckey.jump4 * startblock;
+uint64_t x4 = mckey.jump4 * startblock; \
+uint64_t x5 = mckey.jump5 * startblock; \
+uint64_t x6 = mckey.jump6 * startblock; \
+uint64_t x7 = mckey.jump7 * startblock; \
+uint64_t x8 = mckey.jump8 * startblock;
 
 #define PROCESS_BATCH(batch, nblocks) \
 for (long i = 0; i < nblocks; i++) { \
-    batch[i].uint64t ^= (x1 ^ x2 ^ x3 ^ x4); \
+    batch[i].uint64t ^= (x1 ^ x2 ^ x3 ^ x4 ^ x5 ^ x6 ^ x7 ^ x8); \
     x1 += mckey.jump1; \
     x2 += mckey.jump2; \
     x3 += mckey.jump3; \
     x4 += mckey.jump4; \
+    x5 += mckey.jump5; \
+    x6 += mckey.jump6; \
+    x7 += mckey.jump7; \
+    x8 += mckey.jump8; \
 } \
 
 /**

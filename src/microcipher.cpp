@@ -85,8 +85,12 @@ MCKEY microcipher_mcexkey_to_mckey(const MCEXKEY& mcexkey) {
     uint64_t jump2 = *((uint64_t*)(data + 8));
     uint64_t jump3 = *((uint64_t*)(data + 16));
     uint64_t jump4 = *((uint64_t*)(data + 24));
+    uint64_t jump5 = *((uint64_t*)(data + 32));
+    uint64_t jump6 = *((uint64_t*)(data + 40));
+    uint64_t jump7 = *((uint64_t*)(data + 48));
+    uint64_t jump8 = *((uint64_t*)(data + 56));
 
-    return MCKEY {jump1, jump2, jump3, jump4};
+    return MCKEY {jump1, jump2, jump3, jump4, jump5, jump6, jump7, jump8};
 }
 
 /**
