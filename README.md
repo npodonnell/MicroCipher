@@ -43,7 +43,8 @@ Once the padded block is encrypted the encryption is complete.
 ### Decryption
 
 Decryption is the same as encryption with the exception that the padding operation is reversed. To identify the last
-block an out-of-band flow control mechanism *is needed* since some valid unpadded blocks are also valid padded blocks.
+block an out-of-band signalling mechanism *is needed* since some valid unpadded blocks are also valid padded blocks so 
+we can't determine the last block by examining its structure.
 
 Typically a read-ahead mechanism will attempt to read block n, and if block n has data, it will decrypt block n-1 as a
 non-terminal block. But if block n has no data, block n-1 is the last block so will be un-padded.
