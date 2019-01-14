@@ -23,7 +23,7 @@ starting block.
 Before encryption begins, an internal state is initialized from the key. This internal state consists of 8 64-bit (8-byte) unsigned integers known as
 `x[1..8]`. `x[1..8]` are initialized to `jump[1..8] * starting_block`.
 
-Next, each block is read in. If the block is a full 8 bytes it's encrypted immediately, if it's [0..7] bytes it's the last block and needs
+Next, each block is read in. If the block is a full 8 bytes it's encrypted immediately, if it's 0..7 bytes it's the last block and needs
 to be padded before encryption.
  
 Padding works by filling each of the remaining byte(s) in the block with the number of non-padding bytes, represented
