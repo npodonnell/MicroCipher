@@ -107,4 +107,3 @@ Sender:
 ```
 ./microcipher -e -k abc123 | nc localhost 12345
 ```
->>>>>>> Added usage and recipes to readme, also decreased BLOCKS_PER_BATCH so netcat client/server works
