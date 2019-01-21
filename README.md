@@ -75,6 +75,36 @@ So we keep the first 5 bytes, giving:
 84 82 85 77 80
 ```
 
-### Cryptanalysis
+## Cryptanalysis
 
-Not done yet
+Not done yet .....  DON'T USE THIS CIPHER FOR ANYTHING.
+
+## Usage
+
+Encrypt a file called `file` to a file called `file.enc`:
+
+```
+microcipher --encrypt --key abc123 --infile file --outfile file.enc
+```
+
+Decrypt a file:
+
+```
+./microcipher --decrypt --key abc123 --infile file.enc --outfile file.dec
+```
+
+## Recipes
+
+### Microcipher/Netcat encrypted tunnel
+
+
+Listener:
+```
+nc -l -p 12345 | ./microcipher -d -k abc123
+```
+
+Sender:
+```
+./microcipher -e -k abc123 | nc localhost 12345
+```
+>>>>>>> Added usage and recipes to readme, also decreased BLOCKS_PER_BATCH so netcat client/server works

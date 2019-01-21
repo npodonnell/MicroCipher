@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const int BLOCKS_PER_BATCH = 131072;
+const int BLOCKS_PER_BATCH = 1;
 
 typedef unsigned char BYTE;
 
