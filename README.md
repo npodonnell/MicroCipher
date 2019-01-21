@@ -90,7 +90,7 @@ microcipher --encrypt --key abc123 --infile file --outfile file.enc
 Decrypt a file:
 
 ```
-./microcipher --decrypt --key abc123 --infile file.enc --outfile file.dec
+microcipher --decrypt --key abc123 --infile file.enc --outfile file.dec
 ```
 
 ## Recipes
@@ -100,10 +100,10 @@ Decrypt a file:
 
 Listener:
 ```
-nc -l -p 12345 | ./microcipher -d -k abc123
+nc -l -p 12345 | microcipher -d -k abc123
 ```
 
 Sender:
 ```
-./microcipher -e -k abc123 | nc localhost 12345
+microcipher -e -k abc123 | nc localhost 12345
 ```
