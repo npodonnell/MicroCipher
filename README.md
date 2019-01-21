@@ -81,7 +81,7 @@ Not done yet .....  DON'T USE THIS CIPHER FOR ANYTHING.
 
 ## Usage
 
-Encrypt a file called `file` to a file called `file.enc`:
+Encrypt a file:
 
 ```
 microcipher --encrypt --key abc123 --infile file --outfile file.enc
