@@ -77,7 +77,7 @@ So we keep the first 5 bytes, giving:
 
 ## Cryptanalysis
 
-See [Cryptanalysis]("./CRYPTANALYSIS.md")
+See [Cryptanalysis](./CRYPTANALYSIS.md)
 
 ## Usage
 
