@@ -25,9 +25,10 @@ size, which is not considered part of the key.
 
 The purpose of an IV is to ensure that if the same plaintext is encrypted twice
 using the same key by two different parties, they will produce two different
-ciphertexts. MicroCipher does not have such a concept, so it's important to
-choose a unique key, and every usage should use a unique randomly-generated
-key.
+ciphertexts. MicroCipher does not have such a concept, therefore choosing a unique
+key for every encryption is a requirement and the onus is on the user to meet this
+requirement. There are no safety mechanisms build into the cipher to protect
+against the dangers of key re-use.
 
 If the same key is used to encrypt two different plaintexts which have some common
 data, it's possible to deduce this fact; for example, supposing we possess the
