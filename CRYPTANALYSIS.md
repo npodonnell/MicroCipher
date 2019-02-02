@@ -77,4 +77,34 @@ are valid keys, thus The number of possible MicroCipher keys is:
 Although this is a massive number, there are certain keys within this keyspace which should
 never be used. The worst possible key being all zeros, or (0,0,0,0,0,0,0,0). The reason
 it is such a poor choice of key is not just because it's easily guessed but also because
-it causes the ciphertext and plaintext to be the same.
+it causes the ciphertext and plaintext to be the same. Consider the following 8-byte
+string, which will be the plaintext in a 1-block encryption:
+
+> ENCRYPTME
+
+Interpreting this as an ASCII string and converting to hex, we get:
+
+> 0x454e43525950544d45
+
+Before the encryption process begins, MicroCipher initializes 8 64-bit unsigned integers 
+called x1..x8 to the values of the 8 jump values j1..j8. Since j1..j8 are all zero, so
+will x1..x8:
+
+
+> x1 = 0x0000000000000000 x2 = 0x0000000000000000 x3 = 0x0000000000000000 x4 = 0x0000000000000000
+> x5 = 0x0000000000000000 x6 = 0x0000000000000000 x7 = 0x0000000000000000 x8 = 0x0000000000000000
+ 
+The ciphertext (C<sub>1</sub>) of the first block's plaintext is given by:
+
+> C<sub>1</sub> = P<sub>1</sub> ⊕ (x<sub>1</sub> ⊕ x<sub>1</sub> ⊕ x<sub>1</sub> ⊕ x4 ⊕ x5 ⊕ x6 ⊕ x7 ⊕ x8)
+
+Therefore, the ciphertext will be:
+
+> C<sub>1</sub> = 0x454e43525950544d45 ⊕ (0x0000000000000000 ⊕ 0x0000000000000000 ⊕ 0x0000000000000000 ⊕ 0x0000000000000000 ⊕ 0x0000000000000000 ⊕ 0x0000000000000000 ⊕ 0x0000000000000000 ⊕ 0x0000000000000000)
+
+> C<sub>1</sub> = 0x454e43525950544d45 ⊕ 0x0000000000000000
+
+> C<sub>1</sub> = 0x454e43525950544d45
+
+> C<sub>1</sub> = "ENCRYPTME"
+
