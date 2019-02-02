@@ -77,7 +77,7 @@ So we keep the first 5 bytes, giving:
 
 ## Cryptanalysis
 
-Not done yet .....  DON'T USE THIS CIPHER FOR ANYTHING.
+See [Cryptanalysis]("./CRYPTANALYSIS.md")
 
 ## Usage
 
