@@ -66,6 +66,9 @@ by using a pathologically-chosen weak key.
 
 ### Weak Key Attack
 
+Although technically not an attack, we will begin by discussing weak keys and how they
+can, if used, easily be exploited by an attacker if the conditions are right.
+
 MicroCipher keys consist of 8 64-bit unsigned integers called "jumps". All such integers
 are valid keys, thus The number of possible MicroCipher keys is:
  
@@ -73,5 +76,5 @@ are valid keys, thus The number of possible MicroCipher keys is:
 
 Although this is a massive number, there are certain keys within this keyspace which should
 never be used. The worst possible key being all zeros, or (0,0,0,0,0,0,0,0). The reason
-this key is such a poor choice of key is not just because it's easily guessed but also because
+it is such a poor choice of key is not just because it's easily guessed but also because
 it causes the ciphertext and plaintext to be the same.
