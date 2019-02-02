@@ -51,9 +51,27 @@ be ephemeral and used only once.
 
 ## Attack Vectors
 
-### Key Re-Use
+As discussed in the previous section, any form of key re-use is considered mis-use
+of the cipher, and therefore will not be discussed. The remainder of this section
+will concern attacks where the target has used the cipher in a way that is
+considered safe.
 
-As discussed in the last section, any form of key re-use is considered mis-use, similar
-to choosing an extremely easy-to-guess key, and for that reason it won't be
-discussed.
+That is:
 
+1. They have used a cryptographically-secure randomly-generated key
+2. They have not used this key before and will not use it again
+
+Having said that, we'll begin with analyzing how MicroCipher *can* easily be broken
+by using a pathologically-chosen weak key.
+
+### Weak Key Attack
+
+MicroCipher keys consist of 8 64-bit unsigned integers called "jumps". All such integers
+are valid keys, thus The number of possible MicroCipher keys is:
+ 
+> (2<sup>64</sup>)<sup>8</sup> = 2<sup>512</sup> = 13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084096
+
+Although this is a massive number, there are certain keys within this keyspace which should
+never be used. The worst possible key being all zeros, or (0,0,0,0,0,0,0,0). The reason
+this key is such a poor choice of key is not just because it's easily guessed but also because
+it causes the ciphertext and plaintext to be the same.
