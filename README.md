@@ -4,7 +4,7 @@ Extremely simple and fast streaming block cipher
 
 ---
 
-**<span style="color:red">This cryptosystem is very simple and has no mechanism for message authentication or key reuse protection. DO NOT use it for any purpose other than acedemic !!</span>**
+<span style="color:red">This cryptosystem is very simple and has no mechanism for message authentication or key reuse protection,  in addition the cipher itself has not had any rigourous mathematical analysis. DO NOT use it for any purpose other than acedemic !!</span>
 
 ## Modes Of Operation
 
