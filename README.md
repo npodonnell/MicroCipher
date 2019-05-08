@@ -1,5 +1,6 @@
 # MicroCipher
 
+**This cipher contains no mallebility protection or message authentication. DO NOT use it for any purpose other than acedemic**
 Extremely simple and fast streaming block cipher
 
 ## Modes Of Operation
