@@ -77,15 +77,32 @@ uint64_t x8 = mckey.jump8 * startblock;
 
 #define PROCESS_BATCH(batch, nblocks) \
 for (long i = 0; i < nblocks; i++) { \
-    batch[i].uint64t ^= (x1 ^ x2 ^ x3 ^ x4 ^ x5 ^ x6 ^ x7 ^ x8); \
-    x1 += mckey.jump1; \
-    x2 += mckey.jump2; \
-    x3 += mckey.jump3; \
-    x4 += mckey.jump4; \
-    x5 += mckey.jump5; \
-    x6 += mckey.jump6; \
-    x7 += mckey.jump7; \
-    x8 += mckey.jump8; \
+    batch[i].uint64t ^= ( \
+        (x1 >> (x2 % 2)) ^ \
+        (~x2 >> (~x7 % 3)) ^ \
+        (x3 >> (x3 % 5)) ^ \
+        (~x4 >> (~x8 % 11)) ^ \
+        (x5 >> (x1 % 17)) ^ \
+        (~x6 >> (~x6 % 23)) ^ \
+        (x7 >> (x5 % 31)) ^ \
+        (~x8 >> (~x4 % 37)) ^ \
+        (~x1 << (x3 % 2)) ^ \
+        (x2 << (~x4 % 3)) ^ \
+        (~x3 << (x1 % 5)) ^ \
+        (x4 << (~x6 % 11)) ^ \
+        (~x5 << (x8 % 17)) ^ \
+        (x6 << (~x2 % 23)) ^ \
+        (~x7 << (x7 % 31)) ^ \
+        (x8 << (~x5 % 37)) \
+    ); \
+    x1 += (mckey.jump1); \
+    x2 += (mckey.jump2); \
+    x3 += (mckey.jump3); \
+    x4 += (mckey.jump4); \
+    x5 += (mckey.jump5); \
+    x6 += (mckey.jump6); \
+    x7 += (mckey.jump7); \
+    x8 += (mckey.jump8); \
 } \
 
 /**
