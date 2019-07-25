@@ -34,7 +34,7 @@ With each block, `x[1..8]` have the corresponding jump values `jump[1..8]` added
 
 When the last block of plaintext is reached, a padding block *must* be appended to the end of the ciphertext.
 
-Padding works by filling each of the remaining byte(s) in the block with the number of non-padding bytes, represented
+Padding works by filling each of the remaining byte(s) in the last block with the number of non-padding bytes, represented
 as an 8-bit integer. For example if 3 bytes were read and they were: 
 ```
 194 09 24
@@ -45,26 +45,22 @@ The block would have the remaining 5 bytes filled with `3` to make:
 194 09 24 3 3 3 3 3
 
 ```
+
+If the last block is exactly 8 bytes, a new block is created consisting entirely of padding bytes.
  
-Next the block is encrypted. Encryption is is done by XORing the (possibly padded) block with:
-
-```
-x1 XOR x2 XOR x3 XOR x4 XOR x5 XOR x6 XOR x7 XOR x8
-```
-
-Next the jumps are adjusted by adding each of `jump[1..8]` to  `x[1..8]`, allowing overflow to occur.
-
 ### Decryption
 
 Decryption is the same as encryption with the exception that the padding operation is reversed. 
 
-To identify the last
-block an out-of-band signalling mechanism *is needed* since every valid padded block is also a valid un-padded block
-therefore we can not identify the last block by examining its structure.
+A valid padded block is any block where the last `n` bytes are each equal to `8 - n` and n is in the range [1,8].
 
-Typically a read-ahead mechanism will attempt to read block n, and if block n has data, it will decrypt block n-1 as a
+However this is not sufficient to identify the last block since every valid padded block is also a valid unpadded block.
+
+To identify the end of the stream, block n will be read and if block n has data, block n-1 will be decrypted as a 
 non-terminal block. But if block n has no data, then block n-1 must be the last block so will be un-padded after
 decryption.
+
+The un-padding works as follows:
 
 The last byte of the last block is known as the `remainder`, and the first `remainder mod 8` bytes from that block are kept, thus
 restoring the original length of the plaintext. For example if the last block after decryption was:
