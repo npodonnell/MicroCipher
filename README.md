@@ -25,11 +25,15 @@ The encryption function takes 3 inputs: The plaintext, the key and the
 starting block.
 
 Before encryption begins, an internal state is initialized from the key. This internal state consists of 8 64-bit (8-byte) unsigned integers known as
-`x[1..8]`. `x[1..8]` are initialized to `jump[1..8] * starting_block`.
+`x[1..8]`. `x[1..8]` are initialized to `jump[1..8] * starting_block`. The starting block is 1-indexed.
 
-Next, each block is read in. If the block is a full 8 bytes it's encrypted immediately, if it's 0..7 bytes it's the last block and needs
-to be padded before encryption.
- 
+Encryption proceeds in batches of several 8-byte blocks. The number of batches per block is tuneable. Each block is 
+XOR'ed with a pseudo-random bitmask which is generated from `x[1..8]`.
+
+With each block, `x[1..8]` have the corresponding jump values `jump[1..8]` added to them allowing overflow to happen.
+
+When the last block of plaintext is reached, a padding block *must* be appended to the end of the ciphertext.
+
 Padding works by filling each of the remaining byte(s) in the block with the number of non-padding bytes, represented
 as an 8-bit integer. For example if 3 bytes were read and they were: 
 ```
