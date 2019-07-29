@@ -1,7 +1,7 @@
 # MicroCipher
 
 
-Extremely simple and fast streaming block cipher
+Simple and fast streaming block cipher
 
 ---
 
